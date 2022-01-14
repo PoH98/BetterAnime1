@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         Better Anime1
 // @namespace    http://tampermonkey.net/
-// @version      1.4
+// @version      1.41
 // @description  Provides better Anime1 UI experience
 // @author       PoH98
 // @match        https://anime1.me/*
+// @match        https://anime1.pw/*
 // @icon         https://anime1.me/favicon-32x32.png
 // @grant        none
 // @run-at       document-body
@@ -115,16 +116,22 @@
     } else {
         style.appendChild(document.createTextNode(".site-content a { color: white !important; }"));
     }
+    let useNewAPI = false;
     let tableIds = ["tablepress-1", "table-list"]
     tableIds.forEach(el =>{
         let table = document.getElementById(el);
         if(table != null){
+            if(el == "table-list"){
+                useNewAPI = true;
+            }
             table.id = "betteranime1";
             table.className = "";
         }
     })
-    //new logic for anime1
-    fetchAnimeList("https://d1zquzjgwo9yb.cloudfront.net/");
+    if(useNewAPI){
+        //new logic for anime1
+        fetchAnimeList("https://d1zquzjgwo9yb.cloudfront.net/");
+    }
     let side = document.getElementById("secondary");
     if(side != null){
         side.remove();
