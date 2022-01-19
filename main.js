@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better Anime1
 // @namespace    http://tampermonkey.net/
-// @version      1.41
+// @version      1.42
 // @description  Provides better Anime1 UI experience
 // @author       PoH98
 // @match        https://anime1.me/*
@@ -202,6 +202,12 @@
             frame.forEach(el => {
                 el.height = 720;
                 el.width = 1280;
+            })
+            let vjs = document.querySelectorAll(".vjscontainer");
+            vjs.forEach(el =>{
+                el.style.height = "100%";
+                el.style.width = "100%";
+                el.style.maxWidth = "1280px";
             })
         }, 2000)
 
