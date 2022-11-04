@@ -153,10 +153,14 @@
                 el.replaceWith(iframe);
                 return;
             }
-            if(getParents(el).filter(x => x.className === "site-header").length > 0 || el.tagName === "THEAD" || el.tagName === "TH")
+            let parents = getParents(el);
+            if(parents.filter(x => x.className === "site-header").length > 0 || el.tagName === "THEAD" || el.tagName === "TH")
             {
                 el.style.color = "#fff"
                 el.style.backgroundColor = "#b92d72";
+            }
+            else if(parents.filter(x => x.className === "vjscontainer").length > 0){
+                return;
             }
             else if(el.id !== "customGif" && el.tagName !== "TD"){
                 el.style.color = "#fff"
