@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better Anime1
 // @namespace    http://tampermonkey.net/
-// @version      1.42
+// @version      1.5
 // @description  Provides better Anime1 UI experience
 // @author       PoH98
 // @match        https://anime1.me/*
@@ -81,23 +81,29 @@
         http_request.onreadystatechange = function() {
             if (http_request.readyState == 4  ) {
                 var jsonObj = JSON.parse(http_request.responseText);
+                let index = 0;
                 jsonObj.forEach(el =>{
-                    let row = document.getElementById("betteranime1").insertRow();
+                    let row = document.getElementById("betteranime1").getElementsByTagName('tbody')[0].insertRow();
                     let name = row.insertCell();
+                    let color = "rgb(68, 68, 68)";
+                    if(index % 2 === 0){
+                        color = "rgb(0,0,0)";
+                    }
                     if(el[0] === 0){
                         name.innerHTML = el[1];
-                        name.style.backgroundColor = "rgb(68, 68, 68)";
+                        name.style.backgroundColor = color;
                         name.style.color = "#fff";
                     }
                     else{
                         name.innerHTML = "<a href='https://anime1.me/?cat="+el[0]+"'>" + el[1] + "</a>";
-                        name.style.backgroundColor = "rgb(68, 68, 68)";
+                        name.style.backgroundColor = color;
                         name.style.color = "#fff";
                     }
+                    index++;
                     el.slice(2).forEach(cell => {
                         let c = row.insertCell();
                         c.innerHTML = cell;
-                        c.style.backgroundColor = "rgb(68, 68, 68)";
+                        c.style.backgroundColor = color;
                         c.style.color = "#fff";
                     });
                 })
@@ -105,6 +111,58 @@
         }
         http_request.open("GET", api, true);
         http_request.send();
+    }
+    function getParents(a){
+        var els = [];
+        while (a) {
+            els.unshift(a);
+            a = a.parentNode;
+        }
+        return els;
+    }
+    function setCustomColors(){
+        let page = document.getElementById("page");
+        let item = page.querySelectorAll("*");
+        item.forEach(function(el){
+            if(el.id.includes("ad") && !el.id.includes("head") && !el.id.includes("thread")){
+                el.remove();
+                return;
+            }
+            if(el.className === 'player-space'){
+                el.style.height = "100%";
+            }
+            if(el.id === 'disqus_thread'){
+                el.style.backgroundColor = "#999";
+                el.style.padding = "10px";
+                el.style.margin = "-10px";
+                return;
+            }
+            if(el.id === 'dcl_comment_btn'){
+                el.click();
+            }
+            if(el.className === 'pagination'){
+                el.style.display = "none";
+                return;
+            }
+            if(el.className === 'loadvideo'){
+                let iframe = document.createElement("iframe");
+                iframe.setAttribute("src", el.dataset.src);
+                iframe.width = 1280;
+                iframe.height = 720;
+                iframe.style.border = "none";
+                el.replaceWith(iframe);
+                return;
+            }
+            if(getParents(el).filter(x => x.className === "site-header").length > 0 || el.tagName === "THEAD" || el.tagName === "TH")
+            {
+                el.style.color = "#fff"
+                el.style.backgroundColor = "#b92d72";
+            }
+            else if(el.id !== "customGif" && el.tagName !== "TD"){
+                el.style.color = "#fff"
+                el.style.backgroundColor = "#444";
+            }
+        })
     }
     let head = document.head || document.getElementsByTagName('head')[0];
     let style = document.createElement('style');
@@ -153,46 +211,13 @@
             el.remove();
         })
     }
-    let page = document.getElementById("page");
-    let item = page.querySelectorAll("*");
-    item.forEach(function(el){
-        if(el.id.includes("ad") && !el.id.includes("head") && !el.id.includes("thread")){
-            el.remove();
-            return;
-        }
-        if(el.className === 'player-space'){
-            el.style.height = "100%";
-        }
-        if(el.id === 'disqus_thread'){
-            el.style.backgroundColor = "#999";
-            el.style.padding = "10px";
-            el.style.margin = "-10px";
-            return;
-        }
-        if(el.id === 'dcl_comment_btn'){
-            el.click();
-        }
-        if(el.className === 'pagination'){
-            el.style.display = "none";
-            return;
-        }
-        if(el.className === 'loadvideo'){
-            let iframe = document.createElement("iframe");
-            iframe.setAttribute("src", el.dataset.src);
-            iframe.width = 1280;
-            iframe.height = 720;
-            iframe.style.border = "none";
-            el.replaceWith(iframe);
-            return;
-        }
-        el.style.color = "#fff"
-        el.style.backgroundColor = "#444";
-    });
+    setCustomColors();
     if(window.innerWidth > 1280){
         let img = document.createElement("img");
         img.style.position = "fixed";
         img.style.bottom = "10px";
         img.style.right = "10px";
+        img.id = "customGif";
         img.src = "https://i.pinimg.com/originals/1c/79/ac/1c79ac50b06bb42a24058bf13c162a3e.gif";
         page.appendChild(img);
     }
@@ -209,6 +234,7 @@
                 el.style.width = "100%";
                 el.style.maxWidth = "1280px";
             })
+            setCustomColors();
         }, 2000)
 
     })();
